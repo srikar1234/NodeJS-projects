@@ -1,10 +1,6 @@
 const fs = require('fs')
 const chalk = require('chalk')
 
-const getNote = () => {
-    return 'Your Notes....'
-}
-
 // This function is useful for loading the existing notes from the JSON file
 const loadNotes = () =>{
     // If any of the lines in the try block gives an error, then the code will go to the catch block
@@ -17,21 +13,29 @@ const loadNotes = () =>{
     } 
 }
 
+
 const saveNotes = (notes) => {
     const notesJSON = JSON.stringify(notes)
     fs.writeFileSync('notes.json', notesJSON)
 }
 
+
 const addNote = (title, body) => {
     const notes = loadNotes()
-    
-    const duplicateNotes = notes.filter(
-        (note) => {
+    // Find method is more simpler and quicker
+    // const duplicateNotes = notes.filter(
+    //     (note) => {
+    //         return note.title === title
+    //     }
+    // )
+
+    const duplicateNote = notes.find(
+        (note) => { 
             return note.title === title
         }
     )
 
-    if(duplicateNotes.length === 0){
+    if(!duplicateNote){
         notes.push({
             title: title,
             body: body
@@ -43,6 +47,7 @@ const addNote = (title, body) => {
         console.log(chalk.red.inverse('Note title taken'))
     }
 }
+
 
 const removeNote = (title) => {
     const notes = loadNotes();
@@ -59,9 +64,32 @@ const removeNote = (title) => {
     }
 }
 
+
+const listNote = () =>{
+    const notes = loadNotes();
+    notes.forEach((note) => {
+        console.log(note.title)
+    })
+}
+
+
+const readNote = (title) =>{
+    const notes = loadNotes();
+    const duplicate = notes.find(
+        (note) =>{
+            return note.title === title
+        }
+    )
+    if(!duplicate)
+        console.log(chalk.red.inverse('No note found with title: ' + title))
+    else
+        console.log(duplicate.body)
+}
+
 // This module is exporting multiple functions -> getNotes and addNote
 module.exports = {
-    get: getNote,
     add: addNote,
-    remove: removeNote
+    remove: removeNote,
+    list: listNote,
+    read: readNote
 }

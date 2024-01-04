@@ -1,4 +1,3 @@
-const validator = require('validator')
 const chalk = require('chalk')
 const yargs = require('yargs')
 
@@ -102,18 +101,35 @@ yargs.command({
     command: 'list',
     describe: 'List all the notes',
     handler(){
-        console.log('Listing all the notes here!')
-    }
+        console.log(chalk.green.bold.underline('Listing all the notes here:'))
+		notes.list()
+	}
 })
 
 // Create a read command
 yargs.command({
     command: 'read',
     describe: 'Read a note',
-    handler() {
-        console.log('reading a particular note!')
-    }
+    builder:{
+		title:{
+			describe:'Read a note',
+			demandOption: true,
+            type: 'string'
+        },
+		body:{
+
+        }
+	},
+	handler(argv) {
+        console.log('reading a particular note: ' + argv.title)
+		notes.read(argv.title)
+	}
 })
 
 yargs.parse()
 // console.log(yargs.argv)
+
+
+// Console.log is a great debugging tool
+// Node debugger is another inbuilt node debugging tool
+// Debugger will stop the program at that point and we will be able to see whatever is required
