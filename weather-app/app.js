@@ -1,12 +1,17 @@
 const geocode = require('./utils/geocode')
 const forecast = require('./utils/forecast')
+const address = process.argv[2]
 
-geocode('Philadelphia New York', (error, data) =>{
-    console.log('Error: ',error)
-    console.log('Data: ', data)
-})
-
-forecast(-75.7088, 44.1545, (error, data) => {
-    console.log('Error', error)
-    console.log('Data', data)
-})
+if(!address){
+    return console.log('Error: Add a valid location')
+} else {
+    geocode(address, (error, {longitude, latitude, location} = {}) => {
+        if(error)
+            return console.log('Error: ',error)
+        forecast(longitude, latitude, (error, {temperature} = {}) => {
+            if(error)
+                return console.log('Error: ', error)
+            console.log('location: ' + location +' with  temperature: ' + temperature)
+        })
+    })
+}

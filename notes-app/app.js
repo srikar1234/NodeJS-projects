@@ -127,9 +127,3 @@ yargs.command({
 })
 
 yargs.parse()
-// console.log(yargs.argv)
-
-
-// Console.log is a great debugging tool
-// Node debugger is another inbuilt node debugging tool
-// Debugger will stop the program at that point and we will be able to see whatever is required
