@@ -1,20 +1,12 @@
-console.log('Starting')
+const geocode = require('./utils/geocode')
+const forecast = require('./utils/forecast')
 
-// Requires 2 parameters, 1st a function, & 2nd a time amount in milliseconds
-setTimeout(()=>{
-    console.log('Inside timeout')
-}, 5000)
+geocode('Philadelphia New York', (error, data) =>{
+    console.log('Error: ',error)
+    console.log('Data: ', data)
+})
 
-// Why is zero second timer coming after last stopping statement
-setTimeout(()=>{
-    console.log('Inside timeout 2')
-}, 0)
-
-// Why is zero second timer coming after last stopping statement
-setTimeout(()=>{
-    console.log('Inside timeout 3')
-}, 0)
-
-console.log('Stopping')
-
-console.log('stopping 2')
+forecast(-75.7088, 44.1545, (error, data) => {
+    console.log('Error', error)
+    console.log('Data', data)
+})
