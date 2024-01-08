@@ -22,13 +22,6 @@ const saveNotes = (notes) => {
 
 const addNote = (title, body) => {
     const notes = loadNotes()
-    // Find method is more simpler and quicker
-    // const duplicateNotes = notes.filter(
-    //     (note) => {
-    //         return note.title === title
-    //     }
-    // )
-
     const duplicateNote = notes.find(
         (note) => { 
             return note.title === title
