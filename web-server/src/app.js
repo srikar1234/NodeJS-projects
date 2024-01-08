@@ -5,6 +5,9 @@ const path = require('path')
 
 const hbs = require('hbs')
 
+const geocode = require('./utils/geocode')
+const forecast = require('./utils/forecast')
+
 // We configue our servers
 const app = express()
 
@@ -48,10 +51,27 @@ app.get('/help', (req, res) =>{
 })
 
 app.get('/Weather', (req, res) => {
-    res.send([{
-        forecast: 'forecast',
-        location: 'location'
-    }])
+    if(!req.query.address)
+        return res.send({
+            error: 'Need a valid address to search for weather data'
+        })
+    geocode(req.query.address, (error, {longitude, latitude, location} = {}) => {
+        if(error)
+            return res.send({
+                error
+            })
+        forecast(longitude, latitude, (error, forecastData) => {
+            if(error)
+                return res.send({
+                    error
+                })
+            res.send({
+                Adr: req.query.address,
+                FCST: forecastData,
+                loc: location
+            })
+        })
+    })
 })
 
 app.get('/help/*', (req, res) => {

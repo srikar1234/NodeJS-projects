@@ -24,7 +24,7 @@ const {rating = 100, label: productlabel, stock, saleprice = 150} = product
 console.log(rating, productlabel, stock, saleprice)
 
 // Instead of sending the whole object, we can destructure it and send what is required
-const transaction = (type, { label, stock}) => {
+const transaction = (type, { label, stock} = { } ) => {
     console.log(label, stock, type)
 }
 transaction('order', product)
