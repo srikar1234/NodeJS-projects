@@ -57,9 +57,15 @@ router.patch('/tasks/:id', async(request, res) =>{
         return res.status(406).send('Task with that invalid id does not exist!')
 
     try{
-        const task = await Task.findByIdAndUpdate(_id, request.body, {new:true, runValidators:true})
+        const task = await Task.findById(_id)
+
+        // const task = await Task.findByIdAndUpdate(_id, request.body, {new:true, runValidators:true})
         if(!task)
             return res.status(404).send('User not found or does not exist!')
+        updates.forEach((update) =>{
+            task[update] = request.body[update] 
+        })
+        await task.save();
         res.send(task)
     }
     catch(error){

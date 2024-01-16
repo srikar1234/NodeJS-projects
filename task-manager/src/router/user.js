@@ -1,32 +1,82 @@
 const express = require('express')
-const router = new express.Router()
 const ObjectID = require('mongoose').Types.ObjectId;
 const User = require('../Models/User')
-
+const auth = require('../middleware/auth')
+const router = new express.Router()
 // Resource creation
 // Handler for adding new users
 // Using aync -await
+// Sign up
 router.post('/users',  async (request, res) => {
     const user = new User(request.body)
     try{
-        await user.save();
-        res.send(user)
+        const token = await user.generateAuthToken()
+        res.status(201).send({user, token})
     }
     catch(e){
         res.status(400).send(e)
     }
 })
 
-// Handler for getting the users list
-router.get('/users' ,  async (request, res) =>{
+// Logging in Users
+// resuable function
+// login
+router.post('/users/login', async (request, res) =>{
     try{
-        const users = await User.find({})
-        res.status(220).send(users)
-    }
-    catch(error){
-        res.status(500).send(error)
+        const email = request.body.email
+        const pass = request.body.password
+        // Generate the token for a specific user instance. hence user is used below instead of User
+        const user = await User.findByCredentials(email, pass)
+        const token = await user.generateAuthToken()
+        res.send({user, token})
+    }catch(error){
+        res.status(400).send(error)
     }
 })
+
+router.post('/users/logout', auth, async (request, response) =>{
+    // target the specific token used to log out from that device, not all devices of a current user
+    try{
+        const tokens = request.user.tokens
+        request.user.tokens = tokens.filter( (token) =>{
+            // Remove the token from the tokens array
+            // Check if the current token is the same one used for authentication
+            // tokens array is an array of objects called token
+            return token.token !== request.token
+  
+        })
+        await request.user.save()
+        response.send()
+    }catch(error){
+        response.status(500).send()
+    }
+})
+
+// Route to handle all the logouts at once
+router.post('/users/logoutAll', auth, async (request, response) =>{
+    // target the specific token used to log out from that device, not all devices of a current user
+    try{
+        request.user.tokens = []
+        await request.user.save()
+        response.send()
+    }catch(error){
+        response.status(500).send()
+    }
+})
+
+// Handler for getting the users list
+// Add authentication
+router.get('/users/me' ,  auth, async (request, res) =>{
+    // try{
+    //     const users = await User.find({})
+    //     res.status(220).send(users)
+    // }
+    // catch(error){
+    //     res.status(500).send(error)
+    // }
+    res.send(request.user)
+})
+
 
 // Get user by id, dynamic id in the get method. Get access to route handler
 // Route parameters
@@ -66,12 +116,16 @@ router.patch('/users/:id', async (request, res) => {
         return res.status(406).send('Task with that invalid id does not exist!')
     // Mongoose method: Find by Id and update
     try{
-        // Get the latest data with new:true
-        const user = await User.findByIdAndUpdate(_id, request.body, { new:true, runValidators: true })
+        //  // Get the latest data with new:true
+        // // This bypasses the middleware
+        // const user = await User.findByIdAndUpdate(_id, request.body, { new:true, runValidators: true })
+        const user = await User.findById(_id)
         // User doesnt exist
         if (!user) {
             return res.status(404).send('User not found or does not exist!')
         }
+        updates.forEach( (update) => user[update] = request.body[update])
+        await user.save()
         res.send(user)
     }
     catch(error){
@@ -95,5 +149,6 @@ router.delete('/users/:id', async (request, res) =>{
         res.status(500).send(error)
     }
 })
+
 
 module.exports = router
